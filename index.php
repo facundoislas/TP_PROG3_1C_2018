@@ -81,7 +81,7 @@ $app->group('/personal', function () {
   $this->get('/suspendidos/', \empleadoApi::class . ':TraerSuspendidos');//->add(\MWparaAutentificar::class . ':VerificarUsuario');
 
   $this->get('/activos/', \empleadoApi::class . ':TraerActivos');//->add(\MWparaAutentificar::class . ':VerificarUsuario');
-
+ 
      
 });//->add(\MWparaCORS::class . ':HabilitarCORS8080');
 
