@@ -83,7 +83,7 @@ class empleado
 
 	 	if($this->id>0)
 	 		{
-	 			$this->ModificarEmpleadoParametros();
+	 			$this->ModificarEmpleado();
 	 		}else {
 	 			$this->InsertarEmpleadoParametros();
 	 		}
@@ -127,4 +127,68 @@ class empleado
 	  	return "Metodo mostar:".$this->nombre."  ".$this->apellido."  ".$this->documento;
 	}
 
+	function ModificarEmpleado()
+	{
+		$objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso(); 
+			
+			$consulta =$objetoAccesoDato->RetornarConsulta("
+				update personal 
+				set estado=:estado,
+				nombre=:nombre,
+				apellido=:apellido,
+				puesto=:puesto,
+				sector=:sector,
+				perfil=:perfil,
+				pass=:pass
+				WHERE user =:user");
+				
+			$consulta->bindValue(':user',$this->user, PDO::PARAM_INT);
+			$consulta->bindValue(':estado', $this->estado, PDO::PARAM_STR);
+			$consulta->bindValue(':nombre',$this->nombre, PDO::PARAM_INT);
+			$consulta->bindValue(':apellido', $this->apellido, PDO::PARAM_STR);
+			$consulta->bindValue(':puesto',$this->puesto, PDO::PARAM_INT);
+			$consulta->bindValue(':sector', $this->sector, PDO::PARAM_STR);
+			$consulta->bindValue(':perfil',$this->perfil, PDO::PARAM_INT);
+			$consulta->bindValue(':pass', $this->pass, PDO::PARAM_STR);
+	
+			return $consulta->execute();
+	 
+	}
+
+
+	public function ActivarEmpleado()
+	 {
+			$objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso(); 
+			
+			$consulta =$objetoAccesoDato->RetornarConsulta("
+				update personal 
+				set estado=:estado
+				WHERE user =:user");
+				
+			$consulta->bindValue(':user',$this->user, PDO::PARAM_INT);
+			$consulta->bindValue(':estado', $this->estado, PDO::PARAM_STR);
+	
+			return $consulta->execute();
+	 }
+
+
+	public static function Suspendidos() 
+	{
+		$objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso(); 
+		$consulta =$objetoAccesoDato->RetornarConsulta("select user, estado from personal where estado = 'suspendido'");
+		$consulta->execute();			
+		return $consulta->fetchAll(PDO::FETCH_CLASS, "empleado");	
+
+			
+	}
+
+	public static function Activos() 
+	{
+		$objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso(); 
+		$consulta =$objetoAccesoDato->RetornarConsulta("select user, estado from personal where estado = 'activo'");
+		$consulta->execute();			
+		return $consulta->fetchAll(PDO::FETCH_CLASS, "empleado");	
+
+			
+	}
 }

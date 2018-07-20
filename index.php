@@ -7,6 +7,7 @@ require '/composer/vendor/autoload.php';
 require_once '/Clases/AccesoDatos.php';
 require_once '/Clases/empleadoApi.php';
 require_once '/Clases/pedidoApi.php';
+require_once '/Clases/mesasApi.php';
 //require_once '/Clases/AutentificadorJWT.php';
 //require_once '/Clases/MWparaCORS.php';
 //require_once '/Clases/usuario.php';
@@ -69,9 +70,18 @@ $app->group('/personal', function () {
 
   $this->post('/alta', \empleadoApi::class . ':CargarUno');
 
-  $this->delete('/borrar', \empleadoApi::class . ':BorrarUno');//->add(\MWparaAutentificar::class . ':VerificarUsuario');
+  $this->delete('/', \empleadoApi::class . ':BorrarUno');//->add(\MWparaAutentificar::class . ':VerificarUsuario');
 
-  $this->put('/suspender', \empleadoApi::class . ':ModificarUno');//->add(\MWparaAutentificar::class . ':VerificarUsuario');
+  $this->put('/suspender', \empleadoApi::class . ':Suspender');//->add(\MWparaAutentificar::class . ':VerificarUsuario');
+
+  $this->put('/modificar', \empleadoApi::class . ':ModificarUno');//->add(\MWparaAutentificar::class . ':VerificarUsuario');
+
+  $this->put('/activar', \empleadoApi::class . ':Activar');//->add(\MWparaAutentificar::class . ':VerificarUsuario');
+
+  $this->get('/suspendidos/', \empleadoApi::class . ':TraerSuspendidos');//->add(\MWparaAutentificar::class . ':VerificarUsuario');
+
+  $this->get('/activos/', \empleadoApi::class . ':TraerActivos');//->add(\MWparaAutentificar::class . ':VerificarUsuario');
+
      
 });//->add(\MWparaCORS::class . ':HabilitarCORS8080');
 
@@ -85,9 +95,23 @@ $app->group('/pedidos', function () {
   
 	$this->post('/agregar', \pedidosApi::class . ':CargarUno');
   
-	//$this->delete('/borrar', \pedidosApi::class . ':BorrarUno');
+	$this->delete('/borrar', \pedidosApi::class . ':BorrarUno');
   
 	$this->put('/modificar', \pedidosApi::class . ':ModificarUno');
+	   
+  });
+
+  $app->group('/mesas', function () {
+	
+	$this->get('/', \mesasApi::class . ':traerTodos');
+
+	$this->get('/{idMesa}', \mesasApi::class . ':traerUno');
+  
+	$this->post('/agregar', \mesasApi::class . ':CargarUno');
+  
+	$this->delete('/borrar', \mesasApi::class . ':BorrarUno');
+  
+	$this->put('/cambiarEstado', \mesasApi::class . ':ModificarUno');
 	   
   });
 

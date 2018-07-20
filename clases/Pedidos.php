@@ -53,7 +53,7 @@ public function Insertarpedido()
 			 return $consulta->fetchAll(PDO::FETCH_CLASS, "pedido");		
 	 }
 
-	 /*
+	 
   	public function Borrarpedido()
 	 {
 	 		$objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso(); 
@@ -64,7 +64,7 @@ public function Insertarpedido()
 				$consulta->bindValue(':idPedido',$this->idPedido, PDO::PARAM_INT);		
 				$consulta->execute();
 				return $consulta->rowCount();
-	 }*/
+	 }
 /*
 	public function ModificarPedido()
 	 {
