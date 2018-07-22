@@ -11,7 +11,7 @@ class mesasApi extends mesa implements IApiUsable
         if(!$mesa)
         {
             $objDelaRespuesta= new stdclass();
-            $objDelaRespuesta->error="No esta el mesa";
+            $objDelaRespuesta->error="No esta la mesa";
             $NuevaRespuesta = $response->withJson($objDelaRespuesta, 500); 
         }else
         {
@@ -34,12 +34,10 @@ class mesasApi extends mesa implements IApiUsable
         
         $ArrayDeParametros = $request->getParsedBody();
         //var_dump($ArrayDeParametros);
-        $estado= $ArrayDeParametros['estado'];
 		$idMesa= $ArrayDeParametros['idMesa'];
 		
         
         $mimesa = new mesa();
-        $mimesa->estado=$estado;
 		$mimesa->idMesa = $idMesa;
         $mimesa->AgregarMesa();
        
@@ -85,6 +83,22 @@ class mesasApi extends mesa implements IApiUsable
 		$objDelaRespuesta->resultado=$resultado;
         $objDelaRespuesta->tarea="modificar";
 		return $response->withJson($objDelaRespuesta, 200);		
+    }
+
+	public function Cerrar($request, $response, $args){
+        $ArrayDeParametros = $request->getParsedBody();
+	    //var_dump($ArrayDeParametros);    	
+	    $mimesa = new mesa();
+	    $mimesa->idMesa=$ArrayDeParametros['idMesa'];
+	    $mimesa->estado=$ArrayDeParametros['estado'];
+	    
+
+	   	$resultado =$mimesa->CerrarMesa();
+	   	$objDelaRespuesta= new stdclass();
+		//var_dump($resultado);
+		$objDelaRespuesta->resultado=$resultado;
+        $objDelaRespuesta->tarea="Cerrar";
+		return $response->withJson($objDelaRespuesta, 200);	
     }
 
 

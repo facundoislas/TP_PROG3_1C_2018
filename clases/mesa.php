@@ -5,23 +5,10 @@ class mesa
  	public $estado;
 	public $idMesa;
 
-/*
-public function Insertarmesa()
-	 {
-				$objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso(); 
-				$consulta =$objetoAccesoDato->RetornarConsulta("INSERT into mesas (nombre,idMesa)values('$this->nombre','$this->idMesa')");
-				$consulta->execute();
-				return $objetoAccesoDato->RetornarUltimoIdInsertado();
-				
-
-	 }
-*/
-
 	 public function AgregarMesa()
 	 {
 				$objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso(); 
-				$consulta =$objetoAccesoDato->RetornarConsulta("INSERT into mesas (estado, idMesa)values(:estado, :idMesa )");
-				$consulta->bindValue(':estado',$this->estado, PDO::PARAM_INT);
+				$consulta =$objetoAccesoDato->RetornarConsulta("INSERT into mesas (estado, idMesa)values('con cliente esperando', :idMesa )");
 				$consulta->bindValue(':idMesa', $this->idMesa, PDO::PARAM_STR);
 				
 				$consulta->execute();		
@@ -60,22 +47,6 @@ public function Insertarmesa()
 				$consulta->execute();
 				return $consulta->rowCount();
 	 }
-/*
-	public function Modificarmesa()
-	 {
-
-			$objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso(); 
-			$consulta =$objetoAccesoDato->RetornarConsulta("
-				update mesas 
-				set estrado='$this->nombre',
-				idMesa='$this->idMesa'
-				WHERE id='$this->id'");
-			return $consulta->execute();
-
-	 }
-	*/
-  
-	 
 
 	  public function CambiarEstadoMesa()
 	 {
@@ -106,6 +77,15 @@ public function Insertarmesa()
 			$mesaBuscado= $consulta->fetchObject('mesa');
 			
 			return $mesaBuscado;	
+	}
+
+
+	public function CerrarMesa()
+	{
+		$objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso(); 
+		$consulta =$objetoAccesoDato->RetornarConsulta("update mesas SET estado='Cerrada' WHERE idMesa=:idMesa");
+		$consulta->bindValue(':idMesa', $this->idMesa, PDO::PARAM_INT);
+		$consulta->execute();		
 	}
 
 }
