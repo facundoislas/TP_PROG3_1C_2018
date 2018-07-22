@@ -86,6 +86,6 @@ class mesa
 		$consulta =$objetoAccesoDato->RetornarConsulta("update mesas SET estado='Cerrada' WHERE idMesa=:idMesa");
 		$consulta->bindValue(':idMesa', $this->idMesa, PDO::PARAM_INT);
 		$consulta->execute();		
-	}
+	} 
 
 }
