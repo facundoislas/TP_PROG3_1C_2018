@@ -8,17 +8,7 @@ class pedido
 	  public $idPedido;
 	  public $tiempoPedido;
 
-/*
-public function Insertarpedido()
-	 {
-				$objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso(); 
-				$consulta =$objetoAccesoDato->RetornarConsulta("INSERT into pedidos (nombre,importe)values('$this->nombre','$this->importe')");
-				$consulta->execute();
-				return $objetoAccesoDato->RetornarUltimoIdInsertado();
-				
 
-	 }
-*/
 
 	 public function AgregarPedido()
 	 {
@@ -107,6 +97,17 @@ public function Insertarpedido()
 			
 			$objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso(); 
 			$consulta =$objetoAccesoDato->RetornarConsulta("select id,nombreCliente,importe,estado,tiempoPedido,idPedido from pedidos where idPedido = '".$id."'");
+			$consulta->execute();
+			$pedidoBuscado= $consulta->fetchObject('pedido');
+			
+			return $pedidoBuscado;	
+	}
+
+	public function traerPedidoEstado($estado)
+	{
+			
+			$objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso(); 
+			$consulta =$objetoAccesoDato->RetornarConsulta("select id,nombreCliente,importe,estado,tiempoPedido,idPedido from pedidos where idPedido = '".$estado."'");
 			$consulta->execute();
 			$pedidoBuscado= $consulta->fetchObject('pedido');
 			

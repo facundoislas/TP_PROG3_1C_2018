@@ -92,6 +92,8 @@ $app->group('/pedidos', function () {
 	$this->get('/', \pedidosApi::class . ':traerTodos');
 
 	$this->get('/{idPedido}', \pedidosApi::class . ':traerUno');
+
+	$this->get('/{estado}', \pedidosApi::class . ':traerEstado');
   
 	$this->post('/agregar', \pedidosApi::class . ':CargarUno');
   
@@ -112,6 +114,8 @@ $app->group('/pedidos', function () {
 	$this->delete('/borrar', \mesasApi::class . ':BorrarUno');
   
 	$this->put('/cambiarEstado', \mesasApi::class . ':ModificarUno');
+
+	$this->put('/cerrar', \mesasApi::class . ':Cerrar');
 	   
   });
 

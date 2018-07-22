@@ -24,29 +24,6 @@ class empleado
 				$consulta->execute();
 				return $consulta->rowCount();
 	 }
-	 /*
-	public function SuspenderEmpleado()
-	 {
-
-			$objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso(); 
-			$consulta =$objetoAccesoDato->RetornarConsulta("
-				update personal 
-				set estado='$this->estado'
-				WHERE user='$this->user'");
-			return $consulta->execute();
-
-	 }*/
-	
-	 /*
-	 public function InsertarEmpleado()
-	 {
-				$objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso(); 
-				$consulta =$objetoAccesoDato->RetornarConsulta("INSERT into personal (nombre,apellido,documento,categoria,sueldo)values('$this->nombre','$this->apellido','$this->documento','$this->categoria','$this->sueldo')");
-				$consulta->execute();
-				return $objetoAccesoDato->RetornarUltimoIdInsertado();
-				
-
-	 }*/
 
 	  public function SuspenderEmpleado()
 	 {

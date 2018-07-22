@@ -92,5 +92,21 @@ class pedidosApi extends pedido implements IApiUsable
 		return $response->withJson($objDelaRespuesta, 200);		
     }
 
+	public function TraerEstado($request, $response, $args) {
+     	$estado=$args['estado'];
+		$pedido=pedido::trarPedidoEstado($estado);
+		
+        if(!$pedido)
+        {
+            $objDelaRespuesta= new stdclass();
+            $objDelaRespuesta->error="No esta el pedido";
+            $NuevaRespuesta = $response->withJson($objDelaRespuesta, 500); 
+        }else
+        {
+            $NuevaRespuesta = $response->withJson($pedido, 200); 
+        }     
+        return $NuevaRespuesta;	
+    }
+
 
 }
