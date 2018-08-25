@@ -90,7 +90,7 @@ class mesasApi extends mesa implements IApiUsable
 	    //var_dump($ArrayDeParametros);    	
 	    $mimesa = new mesa();
 	    $mimesa->idMesa=$ArrayDeParametros['idMesa'];
-	    $mimesa->estado=$ArrayDeParametros['estado'];
+	    $mimesa->estado="cerrado";
 	    
 
 	   	$resultado =$mimesa->CerrarMesa();

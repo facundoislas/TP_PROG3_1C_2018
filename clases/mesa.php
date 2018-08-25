@@ -72,7 +72,7 @@ class mesa
 	{
 			
 			$objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso(); 
-			$consulta =$objetoAccesoDato->RetornarConsulta("select id,estado,idMesa where idMesa = '".$id."'");
+			$consulta =$objetoAccesoDato->RetornarConsulta("select id,estado,idMesa from mesas WHERE idMesa ='".$id."'");
 			$consulta->execute();
 			$mesaBuscado= $consulta->fetchObject('mesa');
 			

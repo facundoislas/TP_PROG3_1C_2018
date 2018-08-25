@@ -56,9 +56,9 @@ class pedidosApi extends pedido implements IApiUsable
 
       public function BorrarUno($request, $response, $args) {
      	$ArrayDeParametros = $request->getParsedBody();
-     	$id=$ArrayDeParametros['id'];
+     	$id=$ArrayDeParametros['idPedido'];
      	$pedido= new pedido();
-     	$pedido->id=$id;
+     	$pedido->idPedido=$id;
      	$cantidadDeBorrados=$pedido->Borrarpedido();
 
      	$objDelaRespuesta= new stdclass();

@@ -8,6 +8,7 @@ require_once '/Clases/AccesoDatos.php';
 require_once '/Clases/empleadoApi.php';
 require_once '/Clases/pedidoApi.php';
 require_once '/Clases/mesasApi.php';
+require_once '/Clases/encuestaApi.php';
 //require_once '/Clases/AutentificadorJWT.php';
 //require_once '/Clases/MWparaCORS.php';
 //require_once '/Clases/usuario.php';
@@ -93,7 +94,7 @@ $app->group('/pedidos', function () {
 
 	$this->get('/{idPedido}', \pedidosApi::class . ':traerUno');
 
-	$this->get('/{estado}', \pedidosApi::class . ':traerEstado');
+	//$this->get('/{estado}/', \pedidosApi::class . ':traerEstado');//VER como hacerlo
   
 	$this->post('/agregar', \pedidosApi::class . ':CargarUno');
   

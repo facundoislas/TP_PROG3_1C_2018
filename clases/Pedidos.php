@@ -107,7 +107,7 @@ class pedido
 	{
 			
 			$objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso(); 
-			$consulta =$objetoAccesoDato->RetornarConsulta("select id,nombreCliente,importe,estado,tiempoPedido,idPedido from pedidos where idPedido = '".$estado."'");
+			$consulta =$objetoAccesoDato->RetornarConsulta("select id,nombreCliente,importe,estado,tiempoPedido,idPedido from pedidos where estado = '".$estado."'");
 			$consulta->execute();
 			$pedidoBuscado= $consulta->fetchObject('pedido');
 			
