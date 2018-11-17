@@ -7,12 +7,12 @@ require '/composer/vendor/autoload.php';
 require_once '/Clases/AccesoDatos.php';
 require_once '/Clases/empleadoApi.php';
 require_once '/Clases/pedidoApi.php';
-require_once '/Clases/mesasApi.php';
-require_once '/Clases/encuestaApi.php';
+require_once '/Clases/mesaApi.php';
+require_once '/Clases/loginApi.php';
 //require_once '/Clases/AutentificadorJWT.php';
-//require_once '/Clases/MWparaCORS.php';
+require_once '/Clases/MWparaCORS.php';
 //require_once '/Clases/usuario.php';
-//require_once '/Clases/MWparaAutentificar.php';
+require_once '/Clases/MWparaAutentificar.php';
 
 //require_once '/clases/MWparaAutentificar.php';
 
@@ -35,32 +35,18 @@ $app = new \Slim\App(["settings" => $config]);
 
 
 
-$app->post('/login/', function (Request $request, Response $response) {
+$app->get('[/]', function (Request $request, Response $response) {    
+  $response->getBody()->write("Bienvenido!!!");
+  return $response;
 
-	$token="";
-	$ArrayDeParametros = $request->getParsedBody();
+})->add(\MWparaCORS::class . ':HabilitarCORSTodos');
+//(POST email y clave)
+$app->post('/login', \loginApi::class . ':login')->add(\MWparaCORS::class . ':HabilitarCORSTodos');
+$app->post('/datosToken[/]', \loginApi::class . ':datosToken')->add(\MWparaAutentificar::class . ':VerificarUser')->add(\MWparaCORS::class . ':HabilitarCORSTodos');
+$app->post('/Encuesta[/]', \pedidoApi::class . ':encuesta')->add(\MWparaCORS::class . ':HabilitarCORSTodos');
+$app->post('/finalizarEncuesta[/]', \pedidoApi::class . ':finalizarEncuesta')->add(\MWparaCORS::class . ':HabilitarCORSTodos');
+$app->post('/todasEncuestas[/]', \pedidoApi::class . ':traerTodasEncuestas')->add(\MWparaCORS::class . ':HabilitarCORSTodos');
 
-	$usuario=$ArrayDeParametros['usuario'];
-	$clave=$ArrayDeParametros['clave'];
-
-	$usuario = usuario::TraerUnUsuario($usuario, $clave);
-	
-	if($usuario != null)
-	{
-		$datos=array('usuario'=>$usuario->user,'perfil'=>$usuario->perfil, 'clave'=>$usuario->pass);
-		$token=AutentificadorJWT::CrearToken($datos);
-		$retorno=array('datos'=>$datos, 'token'=>$token);
-		$newResponse = $response->withJson($retorno,200);
-
-	}
-	else
-	{
-		$retorno=array('error'=> "Usuario no Valido");
-		$newResponse = $response->withJson($retorno,401);
-	}
-	return $newResponse;
-
-});
 
 /*LLAMADA A METODOS DE INSTANCIA DE UNA CLASE*/
 $app->group('/personal', function () {
@@ -88,36 +74,39 @@ $app->group('/personal', function () {
 
 
 
-$app->group('/pedidos', function () {
+$app->group('/pedido', function () {
+
+  $this->post('/alta[/]', \pedidoApi::class . ':crearPedido');
+  //$this->get('/', \pedidoApi::class . ':traerTodos');
+  $this->get('/', \pedidoApi::class . ':traerTodosConEstadoMesa');
+  $this->post('/traerUno[/]', \pedidoApi::class . ':traerUno');
+  $this->post('/cancelar[/]', \pedidoApi::class . ':BorrarUno');
+  $this->post('/modificar[/]', \pedidoApi::class . ':modificarUno');
+  $this->post('/finalizar[/]', \pedidoApi::class . ':finalizarPedido');
+  $this->post('/estadoGlobal[/]', \pedidoApi::class . ':cambiarEstadoPedido');
+  $this->post('/operacionesSector[/]', \pedidoApi::class . ':operacionesSector');
+  $this->post('/operacionesEmpleado[/]', \pedidoApi::class . ':operacionesEmpleado');
+  $this->post('/masVendidos[/]', \pedidoApi::class . ':masPedidos');
+  $this->post('/usoMesas[/]', \pedidoApi::class . ':usoMesas');
+  $this->post('/facturacionMesas[/]', \pedidoApi::class . ':facturacionMesas');
+  $this->post('/tiempoEstimado[/]', \pedidoApi::class . ':tiempoEstimado');
+
+  $this->get('/verImagen/[{email}]', \foto::class . ':verImagen');
+
+});
+
+$app->group('/mesa', function () {
+
+  $this->get('/', \mesaApi::class . ':traerTodos');
+  $this->get('/disponibles/', \mesaApi::class . ':traerTodosDisponibles');
+
+})->add(\MWparaCORS::class . ':HabilitarCORSTodos');
+
+  $app->group('/encuesta', function () {
 	
-	$this->get('/', \pedidosApi::class . ':traerTodos');
+	$this->get('/', \encuestaApi::class . ':TraerEncuestas');
 
-	$this->get('/{idPedido}', \pedidosApi::class . ':traerUno');
-
-	//$this->get('/{estado}/', \pedidosApi::class . ':traerEstado');//VER como hacerlo
-  
-	$this->post('/agregar', \pedidosApi::class . ':CargarUno');
-  
-	$this->delete('/borrar', \pedidosApi::class . ':BorrarUno');
-  
-	$this->put('/modificar', \pedidosApi::class . ':ModificarUno');
+	$this->post('/llenar', \encuestaApi::class . ':CargarEncuesta');
 	   
   });
-
-  $app->group('/mesas', function () {
-	
-	$this->get('/', \mesasApi::class . ':traerTodos');
-
-	$this->get('/{idMesa}', \mesasApi::class . ':traerUno');
-  
-	$this->post('/agregar', \mesasApi::class . ':CargarUno');
-  
-	$this->delete('/borrar', \mesasApi::class . ':BorrarUno');
-  
-	$this->put('/cambiarEstado', \mesasApi::class . ':ModificarUno');
-
-	$this->put('/cerrar', \mesasApi::class . ':Cerrar');
-	   
-  });
-
 $app->run();

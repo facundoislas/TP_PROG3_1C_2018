@@ -93,7 +93,7 @@ class empleadoApi extends empleado implements IApiUsable
 	   	$resultado =$miempleado->SuspenderEmpleado();
 	   	$objDelaRespuesta= new stdclass();
 		$objDelaRespuesta->resultado=$resultado;
-        $objDelaRespuesta->tarea="modificar";
+        $objDelaRespuesta->tarea="Suspendido";
         return $response->withJson($objDelaRespuesta, 200);	
         
         	
@@ -117,7 +117,7 @@ class empleadoApi extends empleado implements IApiUsable
           $resultado =$miempleado->ModificarEmpleado();
           $objDelaRespuesta= new stdclass();
        $objDelaRespuesta->resultado=$resultado;
-       $objDelaRespuesta->tarea="modificar";
+       $objDelaRespuesta->tarea="Modificado";
        return $response->withJson($objDelaRespuesta, 200);	
        
            
@@ -133,7 +133,7 @@ class empleadoApi extends empleado implements IApiUsable
       $resultado =$miempleado->ActivarEmpleado();
       $objDelaRespuesta= new stdclass();
    $objDelaRespuesta->resultado=$resultado;
-   $objDelaRespuesta->tarea="modificar";
+   $objDelaRespuesta->tarea="Activado";
    return $response->withJson($objDelaRespuesta, 200);	
    
        
