@@ -1,171 +1,168 @@
 <?php
+//include_once "AccesoDatos.php";
+require_once 'AccesoDatos.php';
 class empleado
 {
-	public $id;
- 	public $nombre;
-  	public $apellido;
-	public $puesto;
-	public $sector;
-	public $user;
-	public $pass;
-	public $perfil;
-	public $estado;
+    public $id;
+    public $email;
+    public $clave;
+    public $nombre;
+    public $tipo;
+    public $estado;
+    //public $foto;
+    //public $alta;
+    //public $estado;
 
+    
+    public function InsertarEmpleadoParametros()
+	{
+			$objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
+            $consulta =$objetoAccesoDato->RetornarConsulta("INSERT into empleado (email,clave,nombre,tipo,estado)values(:email,:clave,:nombre,:tipo,:estado)");
+            $consulta->bindValue(':email', $this->email, PDO::PARAM_STR);
+            $consulta->bindValue(':clave', $this->clave, PDO::PARAM_STR);
+            $consulta->bindValue(':nombre',$this->nombre, PDO::PARAM_STR);
+            $consulta->bindValue(':tipo', $this->tipo, PDO::PARAM_STR);
+            $consulta->bindValue(':estado', $this->estado, PDO::PARAM_STR);
+            //$consulta->bindValue(':foto', $this->foto, PDO::PARAM_STR);
+            //$consulta->bindValue(':alta', $this->alta, PDO::PARAM_STR);
+            $consulta->execute();	
+            return $objetoAccesoDato->RetornarUltimoIdInsertado();
+			//return $consulta->fetchAll(PDO::FETCH_CLASS, "empleado");	
+    }
 
-
-  	public function BorrarEmpleado()
-	 {
-	 		$objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso(); 
-			$consulta =$objetoAccesoDato->RetornarConsulta("
-				delete 
-				from personal 				
-				WHERE user=:user");	
-				$consulta->bindValue(':user',$this->user, PDO::PARAM_INT);		
-				$consulta->execute();
-				return $consulta->rowCount();
-	 }
-
-	  public function SuspenderEmpleado()
-	 {
-			$objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso(); 
-			
-			$consulta =$objetoAccesoDato->RetornarConsulta("
-				update personal 
-				set estado=:estado
-				WHERE user =:user");
-				
-			$consulta->bindValue(':user',$this->user, PDO::PARAM_INT);
-			$consulta->bindValue(':estado', $this->estado, PDO::PARAM_STR);
-	
-			return $consulta->execute();
-	 }
-
-	 public function InsertarEmpleadoParametro()
-	 {
-				$objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso(); 
-				$consulta =$objetoAccesoDato->RetornarConsulta("INSERT into personal (nombre,apellido,sector,puesto,user,pass,estado,perfil)values(:nombre,:apellido,:sector,:puesto,:user,:pass,:estado,:perfil)");
-				$consulta->bindValue(':nombre',$this->nombre, PDO::PARAM_INT);
-				$consulta->bindValue(':sector', $this->sector, PDO::PARAM_STR);
-				$consulta->bindValue(':apellido', $this->apellido, PDO::PARAM_STR);
-				$consulta->bindValue(':puesto', $this->puesto, PDO::PARAM_STR);
-				$consulta->bindValue(':user', $this->user, PDO::PARAM_STR);
-				$consulta->bindValue(':pass', $this->pass, PDO::PARAM_STR);
-				$consulta->bindValue(':estado', $this->estado, PDO::PARAM_STR);
-				$consulta->bindValue(':perfil', $this->perfil, PDO::PARAM_STR);
-				$consulta->execute();		
-				return $objetoAccesoDato->RetornarUltimoIdInsertado();
-	 }
-	 public function GuardarEmpleado()
-	 {
-
-	 	if($this->id>0)
-	 		{
-	 			$this->ModificarEmpleado();
-	 		}else {
-	 			$this->InsertarEmpleadoParametros();
-	 		}
-
-	 }
-
-
-  	public static function TraerTodosLosEmpleados()
+    public static function TraerTodoLosEmpleadosSuspendidos()
 	{
 			$objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso(); 
-			$consulta =$objetoAccesoDato->RetornarConsulta("select id,nombre,apellido,sector,puesto,user,pass,estado,perfil from personal");
-			$consulta->execute();			
+			$consulta =$objetoAccesoDato->RetornarConsulta("SELECT * from empleado where estado='suspendido'");
+            $consulta->execute();
+            if($consulta->rowCount() == 0){
+                return false;   
+            }		
 			return $consulta->fetchAll(PDO::FETCH_CLASS, "empleado");		
-	}
-
-	public static function TraerUnEmpleadoUser($user) 
+    }
+    public static function TraerTodoLosEmpleados()
 	{
 			$objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso(); 
-			$consulta =$objetoAccesoDato->RetornarConsulta("select id,nombre,apellido,sector,puesto,user,pass,estado,perfil from personal where user = '".$user."'");
+			$consulta =$objetoAccesoDato->RetornarConsulta("select * from empleado");
+            $consulta->execute();	
+            if($consulta->rowCount() == 0){
+                return false;   
+            }			
+			return $consulta->fetchAll(PDO::FETCH_CLASS, "empleado");		
+    }
+
+    public static function TraerEmpleadoEmail($email) 
+	{//email,clave,nombre,tipo,estado
+			$objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso(); 
+			$consulta =$objetoAccesoDato->RetornarConsulta("select id,email,clave,nombre,tipo,estado from empleado where email = '$email'");
 			$consulta->execute();
-			$usuarioBuscado= $consulta->fetchObject('empleado');
-			
-			return $usuarioBuscado;				
+            $EmpAux= $consulta->fetchObject('empleado');
+            if($consulta->rowCount() == 0){
+                return false;   
+            }
+			return $EmpAux;		
+    }
 
-			
+    public static function TraerEmpleadoEmailClave($email,$clave){
+		$objetoAccesoDatos = AccesoDatos::dameUnObjetoAcceso(); 
+        $consulta = $objetoAccesoDatos->RetornarConsulta("SELECT id,nombre,sexo,email,turno,perfil,foto,alta,estado FROM empleado WHERE email=:email AND clave=:clave");
+        $consulta->bindValue(':email', $email, PDO::PARAM_STR);
+        $consulta->bindValue(':clave', $clave, PDO::PARAM_STR);
+		$consulta->setFetchMode(PDO::FETCH_CLASS, "empleado");
+		$consulta->execute();
+        return $consulta->fetchObject('empleado');
+    }
+
+    public static function TraerEmpleadoEmailClave2($email,$clave){
+		$objetoAccesoDatos = AccesoDatos::dameUnObjetoAcceso(); 
+        $consulta = $objetoAccesoDatos->RetornarConsulta("SELECT id,nombre,sexo,email,turno,perfil,foto,alta,estado FROM empleado WHERE email=:email AND clave=:clave");
+        $consulta->bindValue(':email', $email, PDO::PARAM_STR);
+        $consulta->bindValue(':clave', $clave, PDO::PARAM_STR);
+		$EmpAux= $consulta->fetchObject('empleado');
+            if($consulta->rowCount() == 0){
+                return false;   
+            }
+		return $EmpAux;	
 	}
-	/*
-	public static function TraerUnEmpleadoId($id) 
+    
+    public static function TraerEmpleadoID($id) 
 	{
 			$objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso(); 
-			$consulta =$objetoAccesoDato->RetornarConsulta("select id,nombre,apellido,sector,puesto,user,pass,estado,perfil  WHERE id= $id");
+			$consulta =$objetoAccesoDato->RetornarConsulta("select * from empleado where id = '$id'");
 			$consulta->execute();
-			$usuarioBuscado= $consulta->fetchObject('empleado');
-      		return $usuarioBuscado;				
-
-			
-	}*/
-
-	public function mostrarDatos()
+            $EmpAux= $consulta->fetchObject('empleado');
+            if($consulta->rowCount() == 0){
+                return false;   
+            }
+			return $EmpAux;		
+    }
+    
+    public static function TraerEmail($auxEmail) 
 	{
-	  	return "Metodo mostar:".$this->nombre."  ".$this->apellido."  ".$this->documento;
-	}
-
-	function ModificarEmpleado()
-	{
-		$objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso(); 
-			
-			$consulta =$objetoAccesoDato->RetornarConsulta("
-				update personal 
-				set estado=:estado,
-				nombre=:nombre,
-				apellido=:apellido,
-				puesto=:puesto,
-				sector=:sector,
-				perfil=:perfil,
-				pass=:pass
-				WHERE user =:user");
-				
-			$consulta->bindValue(':user',$this->user, PDO::PARAM_INT);
-			$consulta->bindValue(':estado', $this->estado, PDO::PARAM_STR);
-			$consulta->bindValue(':nombre',$this->nombre, PDO::PARAM_INT);
-			$consulta->bindValue(':apellido', $this->apellido, PDO::PARAM_STR);
-			$consulta->bindValue(':puesto',$this->puesto, PDO::PARAM_INT);
-			$consulta->bindValue(':sector', $this->sector, PDO::PARAM_STR);
-			$consulta->bindValue(':perfil',$this->perfil, PDO::PARAM_INT);
-			$consulta->bindValue(':pass', $this->pass, PDO::PARAM_STR);
-	
-			return $consulta->execute();
-	 
-	}
-
-
-	public function ActivarEmpleado()
-	 {
 			$objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso(); 
-			
-			$consulta =$objetoAccesoDato->RetornarConsulta("
-				update personal 
-				set estado=:estado
-				WHERE user =:user");
-				
-			$consulta->bindValue(':user',$this->user, PDO::PARAM_INT);
-			$consulta->bindValue(':estado', $this->estado, PDO::PARAM_STR);
-	
-			return $consulta->execute();
-	 }
-
-
-	public static function Suspendidos() 
-	{
-		$objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso(); 
-		$consulta =$objetoAccesoDato->RetornarConsulta("select user, estado from personal where estado = 'suspendido'");
-		$consulta->execute();			
-		return $consulta->fetchAll(PDO::FETCH_CLASS, "empleado");	
-
-			
+			$consulta =$objetoAccesoDato->RetornarConsulta("select email from empleado where email = '$auxEmail'");
+			$consulta->execute();
+            $consulta->setFetchMode(PDO::FETCH_ASSOC);
+            if($consulta->rowCount() == 0){
+                return false;   
+            }
+            return $consulta->fetchAll();	
 	}
 
-	public static function Activos() 
-	{
-		$objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso(); 
-		$consulta =$objetoAccesoDato->RetornarConsulta("select user, estado from personal where estado = 'activo'");
-		$consulta->execute();			
-		return $consulta->fetchAll(PDO::FETCH_CLASS, "empleado");	
+   
+    public static function BorrarEmpleadoID($id)
+    {
+       $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso(); 
+       $consulta =$objetoAccesoDato->RetornarConsulta("
+           delete 
+           from empleado 				
+           WHERE id=:id");	
+       $consulta->bindValue(':id',$id, PDO::PARAM_INT);		
+       $consulta->execute();
+       return $consulta->rowCount();
+    }
 
-			
-	}
+    public function ModificarEmpleadoID($auxID)
+    {
+        $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
+
+        $consulta =$objetoAccesoDato->RetornarConsulta("UPDATE empleado set nombre=:nombre,email=:email,clave=:clave,tipo=:tipo,estado=:estado WHERE id=$auxID");
+            //$consulta->bindValue(':id', $this->id, PDO::PARAM_INT);
+            $consulta->bindValue(':nombre', $this->nombre, PDO::PARAM_STR);
+            $consulta->bindValue(':email', $this->email, PDO::PARAM_STR);
+            $consulta->bindValue(':clave', $this->clave, PDO::PARAM_STR);
+            $consulta->bindValue(':tipo', $this->tipo, PDO::PARAM_STR);
+            $consulta->bindValue(':estado', $this->estado, PDO::PARAM_STR);
+            $consulta->execute();
+            return $consulta->rowCount();
+    }
+
+    public static function SuspenderEmpleadoParametros($auxID,$auxEST)
+    {
+        $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
+
+        $consulta =$objetoAccesoDato->RetornarConsulta("UPDATE empleado set estado=:estado where id=$auxID");
+        $consulta->bindValue(':estado', $auxEST, PDO::PARAM_STR);
+        return $consulta->execute();
+
+    }
+    
+    public static function operacionesUsuarioSalida($auxID){
+		$objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
+		$consulta = $objetoAccesoDato->RetornarConsulta("SELECT count(*) as Cantidad_Comandas FROM pedidos WHERE idEmpladoCer = $auxID OR idEmpladoCoc = $auxID OR idEmpladoBar = $auxID");
+        $consulta->execute();
+        $consulta->setFetchMode(PDO::FETCH_ASSOC);
+        return $consulta->fetch();
+		/*
+		if($consulta->rowCount() == 0){
+			return false;   
+		}
+        return $consulta->fetchAll();
+        */
+    }
+    
+
+
+
 }
+?>

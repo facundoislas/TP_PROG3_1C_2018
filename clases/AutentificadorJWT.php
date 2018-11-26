@@ -1,7 +1,7 @@
 <?php
 use \Firebase\JWT\JWT;
-;
-require_once 'empleado.php';
+require_once 'vendor/autoload.php';
+require_once 'Empleado.php';
 
 class AutentificadorJWT
 {

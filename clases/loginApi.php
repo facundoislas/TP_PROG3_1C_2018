@@ -12,21 +12,28 @@ class loginApi
         $token="";
         $ArrayDeParametros = $request->getParsedBody();
         
-        if(isset( $ArrayDeParametros['user'])&& isset( $ArrayDeParametros['pass']) )
+        if(isset( $ArrayDeParametros['email'])&& isset( $ArrayDeParametros['clave']) )
         {
-            $user = $ArrayDeParametros['user'];
-            $pass = $ArrayDeParametros['pass'];
-          
-            //return $response->withJson(loginApi::is_valid_user($user),404);
+            $email = $ArrayDeParametros['email'];
+            $clave = $ArrayDeParametros['clave'];
+            //return $response->withJson(loginApi::is_valid_email($email),404);
+             if (loginApi::is_valid_email($email)==true) {
+                $empAux = empleado::TraerEmpleadoEmail($email);
+             }
+             else{
+                 return $response->withJson("no es email",404);
+             }
             
-            $empAux = empleado::TraerUnEmpleadoUser($user);
-            // $passValida = password_verify($pass, $empAux->pass);
-            //$passValida = password_verify($pass, $empAux->pass);
-
-         
+            
+            $empAux = empleado::TraerEmpleadoEmail($email);
+            // $claveValida = password_verify($clave, $empAux->clave);
+            //$claveValida = password_verify($clave, $empAux->clave);
+            
             if ($empAux) {
-                if ($pass == $empAux->pass) {
-                    $usuarioBuscado = empleado::TraerUnEmpleadoUser($user);
+                if ($clave == $empAux->clave) {
+                    $usuarioBuscado = empleado::TraerEmpleadoEmail($email);
+
+                    
                 } else {
                     return $response->withJson("La contraseña no es válida",404);
                 }
@@ -46,26 +53,31 @@ class loginApi
                 {
                     if ($usuarioBuscado->estado != "suspendido") 
                     {
-
-                    
+                        
                         $token= AutentificadorJWT::CrearToken(array(
                             'id'=> $usuarioBuscado->id,
-                            'user'=> $usuarioBuscado->user,
+                            'email'=> $usuarioBuscado->email,
                             'nombre'=> $usuarioBuscado->nombre,
-                            'puesto'=> $usuarioBuscado->puesto,
+                            'tipo'=> $usuarioBuscado->tipo,
                             'estado'=> $usuarioBuscado->estado));
+
 
                         $datos= AutentificadorJWT::ObtenerData($token);
                         //$objRespuesta->Token = $token;
                         //$objRespuesta->Datos =$datos;
-                        date_default_timezone_set('America/Argentina/Buenos_Aires');
+
+
+                        date_default_timezone_set("America/Argentina/Buenos_Aires");
                         $f= date("Y-m-d");
                         $h= date("H:i:s");
-                        
                         historico::registrarLogin($usuarioBuscado->id,$f,$h);
+                      
                         $objRespuesta->msj ="Bienvenido ".$datos->nombre;
                         $objRespuesta->Token = $token;
+
                         return $response->withJson($objRespuesta ,200);
+
+
                     }
                     else {
                         return $response->withJson("Usuario Suspendido",404);
@@ -73,13 +85,13 @@ class loginApi
                 }
                 else
                 {
-                    return $response->withJson("Error en user o pass",404);
+                    return $response->withJson("Error en email o clave",404);
                     //$newResponse = $response->withJson( $retorno ,409); 
                 }
         }
         else
         {
-            return $response->withJson("Falta user y pass",404);
+            return $response->withJson("Falta email y clave",404);
         }
     }
 
@@ -94,6 +106,10 @@ class loginApi
 		}
 		return $response->withJson( $datosToken ,200);
 
+    }
+    public static function is_valid_email($str)
+    {
+      return (false !== filter_var($str, FILTER_VALIDATE_EMAIL));
     }
 
 }

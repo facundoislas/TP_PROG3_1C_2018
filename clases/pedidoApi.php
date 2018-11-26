@@ -10,14 +10,17 @@ class pedidoApi
     {
         $ArrayDeParametros = $request->getParsedBody();
         $arrayConToken = $request->getHeader('token');
-        $token=$arrayConToken[0];
-        //$token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJkMTE1NDk3MzcxMWIxMzU5ODVkYjVlNzA0NTI5Nzk0ODVlMjE0Yzg4IiwiZGF0YSI6eyJpZCI6MjMsIm5vbWJyZSI6InVzdWFyaW9Vbm8iLCJzZXhvIjoibWFzY3VsaW5vIiwiZW1haWwiOiJ1c2VyQHVzZXIuY29tIiwidHVybm8iOiJtYW5pYW5hIiwicGVyZmlsIjoidXNlciIsImZvdG8iOiJmb3Rvc0VtcGxlYWRvc1wvdXN1YXJpb1Vuby5wbmciLCJhbHRhIjoiMjAxNy0xMi0xOCAxNTo0NDozNCIsImVzdGFkbyI6ImFjdGl2byJ9LCJhcHAiOiJBUEkgUkVTVCBUUC1Fc3RhY2lvbmFtaWVudG8ifQ.Hl41g_LiwUdnL_l5eOSaxgSbEzBDoibnvXvPFq0rgT0";
-        $datosToken = AutentificadorJWT::ObtenerData($token);
+		$token=$arrayConToken[0];
+		//$token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJkMTE1NDk3MzcxMWIxMzU5ODVkYjVlNzA0NTI5Nzk0ODVlMjE0Yzg4IiwiZGF0YSI6eyJpZCI6MjMsIm5vbWJyZSI6InVzdWFyaW9Vbm8iLCJzZXhvIjoibWFzY3VsaW5vIiwiZW1haWwiOiJ1c2VyQHVzZXIuY29tIiwidHVybm8iOiJtYW5pYW5hIiwicGVyZmlsIjoidXNlciIsImZvdG8iOiJmb3Rvc0VtcGxlYWRvc1wvdXN1YXJpb1Vuby5wbmciLCJhbHRhIjoiMjAxNy0xMi0xOCAxNTo0NDozNCIsImVzdGFkbyI6ImFjdGl2byJ9LCJhcHAiOiJBUEkgUkVTVCBUUC1Fc3RhY2lvbmFtaWVudG8ifQ.Hl41g_LiwUdnL_l5eOSaxgSbEzBDoibnvXvPFq0rgT0";
+		$datosToken = AutentificadorJWT::ObtenerData($token);
 
-        if ($datosToken->estado =="suspendido") {
+		if ($datosToken->estado =="suspendido") {
              return $response->withJson("Esta suspendido, pongase en contacto con el administrador",404);
-        }
-        else {
+		}
+		else {
+            $detalleBar = null;
+            $detalleCer = null;
+            $detalleCoc = null;
             if (!isset($ArrayDeParametros['nroMesa'])) {
                 return $response->withJson("Mesa no puede esta vacio",404);   
             }
@@ -31,20 +34,22 @@ class pedidoApi
             if ($this->validarNombre($cliente) == false) {
                 return $response->withJson("Error: cliente solo puede contener letas y numeros",404);
             }
-            if (!isset($ArrayDeParametros['detalleBar'])) {
-                return $response->withJson("detalleBar no puede esta vacio",404);   
+            
+            if (isset($ArrayDeParametros['detalleBar'])) {
+                  $detalleBar= strtolower($ArrayDeParametros['detalleBar']);
             }
-            $detalleBar= strtolower($ArrayDeParametros['detalleBar']);
+            
 
-            if (!isset($ArrayDeParametros['detalleCer'])) {
-                return $response->withJson("detalleCer no puede esta vacio",404);   
+            if (isset($ArrayDeParametros['detalleCer'])) {
+                $detalleCer= strtolower($ArrayDeParametros['detalleCer']);  
             }
-            $detalleCer= strtolower($ArrayDeParametros['detalleCer']);
+           
 
-            if (!isset($ArrayDeParametros['detalleCoc'])) {
-                return $response->withJson("detalleCoc no puede esta vacio",404);   
+            if (isset($ArrayDeParametros['detalleCoc'])) {
+                $detalleCoc= strtolower($ArrayDeParametros['detalleCoc']);  
             }
-            $detalleCoc= strtolower($ArrayDeParametros['detalleCoc']);
+            if($detalleBar== null && $detalleCoc == null && $detalleCer == null)
+                return $response->withJson("No generaste ningun pedido en ningun sector", 404);
 
             if (!isset($ArrayDeParametros['importe'])) {
                 return $response->withJson("importe no puede esta vacio",404);   
@@ -52,32 +57,32 @@ class pedidoApi
             $importe= strtolower($ArrayDeParametros['importe']);
 
             $pedidoAux = new pedido();
-
+            date_default_timezone_set("America/Argentina/Buenos_Aires");
             $pedidoAux->fecha = date("Y-m-d");
             $pedidoAux->nroMesa = $nroMesa;
             $pedidoAux->cliente = $cliente;
             $pedidoAux->importe = $importe;
             $pedidoAux->detalleBar = $detalleBar;
-            if ($detalleBar != "nada") {
+            if ($detalleBar != null) {
                 $pedidoAux->estadoBar = "Pendiente";
             }
             
             $pedidoAux->detalleCer = $detalleCer;
-            if ($detalleCer != "nada") {
+            if ($detalleCer != null) {
                 $pedidoAux->estadoCer = "Pendiente";
             }
             
             $pedidoAux->detalleCoc = $detalleCoc;
-            if ($detalleCoc != "nada") {
+            if ($detalleCoc != null) {
                 $pedidoAux->estadoCoc = "Pendiente";
             }
             
 
             
 
-
-            $foto = $this->obtenerArchivo($cliente);
-                
+            
+            $foto = $this->obtenerArchivo($cliente."_".$nroMesa."");
+				
             if($foto != NULL)
             {
                 $directorio = 'fotos/';
@@ -99,7 +104,7 @@ class pedidoApi
             else {
                 return $response->withJson("Error al generar pedido",404);
             }
-        }
+		}
    
     }
 
@@ -116,58 +121,58 @@ class pedidoApi
     }
 
     public function obtenerArchivo($nombre) 
-    {
+	{
         if(!isset($_FILES['foto']))
         {
             throw new Exception('Error: No existe foto');
         }
         if ( 0 < $_FILES['foto']['error'] ) {
-            return null;
-        }
-        else {
+			return null;
+		}
+		else {
             $alta= date("YmdHis");
             $foto = $_FILES['foto']['name'];
-            
+			
             $extension= explode(".", $foto);
             $tipo = strtolower(pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION));
             if($tipo != "jpg" && $tipo != "jpeg" && $tipo != "png") {
                 throw new Exception('Error: de formato, solo se acepta jpg jpeg png');
             }
 
-            $nombreNuevo = 'fotos/'.$nombre.$alta.".".strtolower($extension[1]);
+            $nombreNuevo = 'fotos/'.$nombre."_".$alta.".".strtolower($extension[1]);
             return $nombreNuevo;
-        }
+		}
     }
 
     public function traerTodos($request, $response, $args) 
-    {
+	{
         $todosPedidos = pedido::TraerTodoLosPedidos();
         return $response->withJson($todosPedidos, 200);  
 
     }
     public function traerTodosConEstadoMesa($request, $response, $args) 
-    {
+	{
         $todosPedidos = pedido::TraerTodoLosPedidosConEstadoMesa();
         return $response->withJson($todosPedidos, 200);  
 
     }
 
     public function traerUno($request, $response, $args) 
-    {
+	{
         $ArrayDeParametros = $request->getParsedBody();
         $arrayConToken = $request->getHeader('token');
-        $token=$arrayConToken[0];
-        //$token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJkMTE1NDk3MzcxMWIxMzU5ODVkYjVlNzA0NTI5Nzk0ODVlMjE0Yzg4IiwiZGF0YSI6eyJpZCI6MjMsIm5vbWJyZSI6InVzdWFyaW9Vbm8iLCJzZXhvIjoibWFzY3VsaW5vIiwiZW1haWwiOiJ1c2VyQHVzZXIuY29tIiwidHVybm8iOiJtYW5pYW5hIiwicGVyZmlsIjoidXNlciIsImZvdG8iOiJmb3Rvc0VtcGxlYWRvc1wvdXN1YXJpb1Vuby5wbmciLCJhbHRhIjoiMjAxNy0xMi0xOCAxNTo0NDozNCIsImVzdGFkbyI6ImFjdGl2byJ9LCJhcHAiOiJBUEkgUkVTVCBUUC1Fc3RhY2lvbmFtaWVudG8ifQ.Hl41g_LiwUdnL_l5eOSaxgSbEzBDoibnvXvPFq0rgT0";
-        $datosToken = AutentificadorJWT::ObtenerData($token);
+		$token=$arrayConToken[0];
+		//$token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJkMTE1NDk3MzcxMWIxMzU5ODVkYjVlNzA0NTI5Nzk0ODVlMjE0Yzg4IiwiZGF0YSI6eyJpZCI6MjMsIm5vbWJyZSI6InVzdWFyaW9Vbm8iLCJzZXhvIjoibWFzY3VsaW5vIiwiZW1haWwiOiJ1c2VyQHVzZXIuY29tIiwidHVybm8iOiJtYW5pYW5hIiwicGVyZmlsIjoidXNlciIsImZvdG8iOiJmb3Rvc0VtcGxlYWRvc1wvdXN1YXJpb1Vuby5wbmciLCJhbHRhIjoiMjAxNy0xMi0xOCAxNTo0NDozNCIsImVzdGFkbyI6ImFjdGl2byJ9LCJhcHAiOiJBUEkgUkVTVCBUUC1Fc3RhY2lvbmFtaWVudG8ifQ.Hl41g_LiwUdnL_l5eOSaxgSbEzBDoibnvXvPFq0rgT0";
+		$datosToken = AutentificadorJWT::ObtenerData($token);
 
-        if ($datosToken->estado =="suspendido") {
+		if ($datosToken->estado =="suspendido") {
              return $response->withJson("Esta suspendido, pongase en contacto con el administrador",404);
-        }
-        else {
-            if (!isset($ArrayDeParametros['idPedido'])) {
+		}
+		else {
+            if (empty($args)) {
                 return $response->withJson("idPedido no puede esta vacio",404);   
             }
-            $idPedido= strtolower($ArrayDeParametros['idPedido']);
+            $idPedido= $args['idPedido'];
             $todosPedidos = pedido::TraerPedidoIDConEstadoMesa($idPedido);
             return $response->withJson($todosPedidos, 200);  
         }
@@ -193,8 +198,12 @@ class pedidoApi
             $pedModificar = pedido::TraerPedidoID($idPedido);
 
             if ($pedModificar != false) {
-                $objDelaRespuesta->msj = "se modifico pedido numero ".$idPedido;
+
+               
+                
                 if (isset($ArrayDeParametros['estadoBar'])&& isset($ArrayDeParametros['tiempo_estimado_bar'])) {
+
+                    if($pedModificar->detalleBar!=null){
                     $estadoBar = strtolower($ArrayDeParametros['estadoBar']);
                     $tiempo_estimado_bar = $ArrayDeParametros['tiempo_estimado_bar'];
 
@@ -209,8 +218,17 @@ class pedidoApi
                     }
                     $pedModificar->modificarBarID($idPedido);
                     $objDelaRespuesta->estadoBar =$estadoBar;
+                    $objDelaRespuesta->msj = "se modifico el estado en el Bar del pedido numero ".$idPedido;
+                    return $response->withJson($objDelaRespuesta->msj,200);
                 }
+                    else
+                     $objDelaRespuesta->msj = "No hay pedido de Bar en el pedido ".$idPedido;
+                
+            }
+                
+                 
                 if (isset($ArrayDeParametros['estadoCer']) && isset($ArrayDeParametros['tiempo_estimado_cer'])) {
+                    if($pedModificar->detalleCer!=null){
                     $estadoCer = strtolower($ArrayDeParametros['estadoCer']);
                     $tiempo_estimado_cer = $ArrayDeParametros['tiempo_estimado_cer'];
 
@@ -225,8 +243,18 @@ class pedidoApi
                     }
                     $pedModificar->modificarCerID($idPedido);
                     $objDelaRespuesta->estadoCer =$estadoCer;
+                    $objDelaRespuesta->msj = "se modifico el estado de la cerveza del pedido numero ".$idPedido;
+                    return $response->withJson($objDelaRespuesta->msj,200);
                 }
+                    else
+                     $objDelaRespuesta->msj = "No hay pedido de cerveza en el pedido ".$idPedido;
+                }
+                
+                
+                
+                
                 if (isset($ArrayDeParametros['estadoCoc']) && isset($ArrayDeParametros['tiempo_estimado_coc'])) {
+                    if($pedModificar->detalleCoc !=null){
                     $estadoCoc = strtolower($ArrayDeParametros['estadoCoc']);
                     $tiempo_estimado_coc = $ArrayDeParametros['tiempo_estimado_coc'];
 
@@ -241,7 +269,13 @@ class pedidoApi
                     }
                     $pedModificar->modificarCocID($idPedido);
                     $objDelaRespuesta->estadoCoc =$estadoCoc;
+                    $objDelaRespuesta->msj = "se modifico el estado en la cocina del pedido numero ".$idPedido;
+
                 }
+                    else
+                     $objDelaRespuesta->msj = "No hay pedido para la cocina en el pedido ".$idPedido;  
+            }
+                         
 
             }
             else {
@@ -267,46 +301,69 @@ class pedidoApi
         $idPedido= $ArrayDeParametros['idPedido'];
         $objDelaRespuesta= new stdclass();
         $pedFinalizar = pedido::TraerPedidoID($idPedido);
-        if (isset($ArrayDeParametros['estadoCoc'])) {
-            $tiempo_final_coc =$this->calculoTiempo($pedFinalizar->tiempo_estimado_coc);
-            $estadoCoc = $ArrayDeParametros['estadoCoc'];
+        if (isset($ArrayDeParametros['sector'])) {
+            $sector = $ArrayDeParametros['sector'];
+
+            switch ($sector) {
+                case 'cocina':
+
+                    $tiempo_final_coc =$this->calculoTiempo($pedFinalizar->tiempo_estimado_coc);
+            $estadoCoc = "listo para servir";
             $pedFinalizar->estadoCoc = $estadoCoc;
             $pedFinalizar->tiempo_final_coc = $tiempo_final_coc;
             //echo ($pedFinalizar->tiempo_final_coc);
             $pedFinalizar->finalizarCocinarID($idPedido);
             return $response->withJson('El pedido de cocina esta listo para servir',200);
 
-        }
-        if (isset($ArrayDeParametros['estadoBar'])) {
-            $tiempo_final_bar =$this->calculoTiempo($pedFinalizar->tiempo_estimado_bar);
-            $estadoBar = $ArrayDeParametros['estadoBar'];
+                    # code...
+                    break;
+                case 'barra':
+              
+                $estadoBar = "listo para servir";
+                    $tiempo_final_bar =$this->calculoTiempo($pedFinalizar->tiempo_estimado_bar);
+            $estadoBar = "listo para servir";
             $pedFinalizar->estadoBar = $estadoBar;
             $pedFinalizar->tiempo_final_bar = $tiempo_final_bar;
             //echo ($pedFinalizar->tiempo_final_bar);
             $pedFinalizar->finalizarBartenderID($idPedido);
             return $response->withJson('El pedido de bartender esta listo para servir',200);
 
-        }
-        if (isset($ArrayDeParametros['estadoCer'])) {
-            $tiempo_final_cer =$this->calculoTiempo($pedFinalizar->tiempo_estimado_cer);
-            $estadoCer = $ArrayDeParametros['estadoCer'];
+
+                    # code...
+                    break;
+
+                case 'cerveza':
+                $estadoCer = "listo para servir";
+                    $tiempo_final_cer =$this->calculoTiempo($pedFinalizar->tiempo_estimado_cer);
+            $estadoCer = "listo para servir";
             $pedFinalizar->estadoCer = $estadoCer;
             $pedFinalizar->tiempo_final_cer = $tiempo_final_cer;
             //echo ($pedFinalizar->tiempo_final_cer);
             $pedFinalizar->finalizarCerveceriaID($idPedido);
             return $response->withJson('El pedido de cerveceria esta listo para servir',200);
+                            # code...
+                    break;
+                default:
+
+                    # code...
+                    break;
+            }
+            
         }
+        
 
         return $response->withJson('No se modifico ningun pedido',404);
 
     }
     
     public function calculoTiempo($tiempoPedido){
+        date_default_timezone_set("America/Argentina/Buenos_Aires");
         (int)$tiempoEstimado = $tiempoPedido;
         $ahora= (int)date("i");
         return $resultado = $tiempoEstimado - $ahora; 
     }
     public function tiempoEstimado($request, $response, $args){
+        date_default_timezone_set("America/Argentina/Buenos_Aires");
         $ArrayDeParametros = $request->getParsedBody();
         if (!isset($ArrayDeParametros['idPedido'])) {
             return $response->withJson('Error al finalizar: Debe ingresar ID de pedido',404);
@@ -361,12 +418,12 @@ class pedidoApi
             //$pedFinalizar->estado = $estado;
             //$pedFinalizar->cambiarEstadoPedidoGlobal($idPedido);
             mesa::ocuparMesa($pedFinalizar->nroMesa,$estado);
-            if ($estado == "libre") {
+            if ($estado == "finalizado") {
                 //cambiarTodosEstadoSector
                 pedido::cambiarTodosEstadoSector($idPedido,"Finalizado");
                 encuesta::altaEncuesta($idPedido,$pedFinalizar->nroMesa,"Pendiente");
             }
-            return $response->withJson('El pedido ya esta servido',200);
+            return $response->withJson('Se cambia estado global del pedido a '.$estado,200);
         }
         return $response->withJson('No se modifico ningun pedido general',404);
     }
@@ -384,44 +441,11 @@ class pedidoApi
         }
         $objDelaRespuesta= new stdclass();
 
-        if (isset($ArrayDeParametros['desde']) && isset($ArrayDeParametros['hasta'])) 
-        {
-            $desde= $ArrayDeParametros['desde'];
 
-            $hasta= $ArrayDeParametros['hasta'];
-
-            $objDelaRespuesta->estadoBar= pedido::TraerCantidadOperacionesSectorFechas("estadoBar",$desde,$hasta);
-            $objDelaRespuesta->estadoCoc= pedido::TraerCantidadOperacionesSectorFechas("estadoCoc",$desde,$hasta);
-            $objDelaRespuesta->estadoCer= pedido::TraerCantidadOperacionesSectorFechas("estadoCer",$desde,$hasta);
+            $objDelaRespuesta->estadoBar= pedido::TraerCantidadOperacionesSector("estadoBar");
+            $objDelaRespuesta->estadoCoc= pedido::TraerCantidadOperacionesSector("estadoCoc");
+            $objDelaRespuesta->estadoCer= pedido::TraerCantidadOperacionesSector("estadoCer");
             return $response->withJson($objDelaRespuesta, 200); 
-            
-
-        }
-        if (isset($ArrayDeParametros['desde']) && !isset($ArrayDeParametros['hasta'])) {
-                $desde= $ArrayDeParametros['desde'];
-
-                $objDelaRespuesta->estadoBar= pedido::TraerCantidadOperacionesSectorFechas("estadoBar",$desde,"");
-                $objDelaRespuesta->estadoCoc= pedido::TraerCantidadOperacionesSectorFechas("estadoCoc",$desde,"");
-                $objDelaRespuesta->estadoCer= pedido::TraerCantidadOperacionesSectorFechas("estadoCer",$desde,"");
-                return $response->withJson($objDelaRespuesta, 200); 
-
-        }
-        if (!isset($ArrayDeParametros['desde']) && isset($ArrayDeParametros['hasta'])) {
-                $hasta= $ArrayDeParametros['hasta'];
-
-
-                $objDelaRespuesta->estadoBar= pedido::TraerCantidadOperacionesSectorFechas("estadoBar","",$hasta);
-                $objDelaRespuesta->estadoCoc= pedido::TraerCantidadOperacionesSectorFechas("estadoCoc","",$hasta);
-                $objDelaRespuesta->estadoCer= pedido::TraerCantidadOperacionesSectorFechas("estadoCer","",$hasta);
-                return $response->withJson($objDelaRespuesta, 200); 
-
-        }
-        if (!isset($ArrayDeParametros['desde']) && !isset($ArrayDeParametros['hasta'])) {
-            $objDelaRespuesta->estadoBar= pedido::TraerCantidadOperacionesSectorFechas("estadoBar","","");
-            $objDelaRespuesta->estadoCoc= pedido::TraerCantidadOperacionesSectorFechas("estadoCoc","","");
-            $objDelaRespuesta->estadoCer= pedido::TraerCantidadOperacionesSectorFechas("estadoCer","","");
-            return $response->withJson($objDelaRespuesta, 200); 
-        }
     }
 
         //operacionesSector
@@ -437,71 +461,14 @@ class pedidoApi
             }
             $objDelaRespuesta= new stdclass();
     
-            if (isset($ArrayDeParametros['desde']) && isset($ArrayDeParametros['hasta'])) 
-            {
-                $desde= $ArrayDeParametros['desde'];
-    
-                $hasta= $ArrayDeParametros['hasta'];
-    
-                $objDelaRespuesta->detalleBar= pedido::TraerMasVendidosSectorFechas("detalleBar",$desde,$hasta);
-                if ($objDelaRespuesta->detalleBar == false) {
-                    $objDelaRespuesta->detalleBar = "Nada";
-                }
-                $objDelaRespuesta->detalleCoc= pedido::TraerMasVendidosSectorFechas("detalleCoc",$desde,$hasta);
-                if ($objDelaRespuesta->detalleCoc == false) {
-                    $objDelaRespuesta->detalleCoc = "Nada";
-                }
-                $objDelaRespuesta->detalleCer= pedido::TraerMasVendidosSectorFechas("detalleCer",$desde,$hasta);
-                if ($objDelaRespuesta->detalleCer == false) {
-                    $objDelaRespuesta->detalleCer = "Nada";
-                }
-                return $response->withJson($objDelaRespuesta, 200); 
                 
-    
-            }
-            if (isset($ArrayDeParametros['desde']) && !isset($ArrayDeParametros['hasta'])) {
-                    $desde= $ArrayDeParametros['desde'];
-    
-                    $objDelaRespuesta->detalleBar= pedido::TraerMasVendidosSectorFechas("detalleBar",$desde,"");
-                    if ($objDelaRespuesta->detalleBar == false) {
-                        $objDelaRespuesta->detalleBar = "Nada";
-                    }
-                    $objDelaRespuesta->detalleCoc= pedido::TraerMasVendidosSectorFechas("detalleCoc",$desde,"");
-                    if ($objDelaRespuesta->detalleCoc == false) {
-                        $objDelaRespuesta->detalleCoc = "Nada";
-                    }
-                    $objDelaRespuesta->detalleCer= pedido::TraerMasVendidosSectorFechas("detalleCer",$desde,"");
-                    if ($objDelaRespuesta->detalleCer == false) {
-                        $objDelaRespuesta->detalleCer = "Nada";
-                    }
-                    return $response->withJson($objDelaRespuesta, 200); 
-    
-            }
-            if (!isset($ArrayDeParametros['desde']) && isset($ArrayDeParametros['hasta'])) {
-                    $hasta= $ArrayDeParametros['hasta'];
-    
-    
-                    $objDelaRespuesta->detalleBar= pedido::TraerMasVendidosSectorFechas("detalleBar","",$hasta);
-                    if ($objDelaRespuesta->detalleBar == false) {
-                        $objDelaRespuesta->detalleBar = "Nada";
-                    }
-                    $objDelaRespuesta->detalleCoc= pedido::TraerMasVendidosSectorFechas("detalleCoc","",$hasta);
-                    if ($objDelaRespuesta->detalleCoc == false) {
-                        $objDelaRespuesta->detalleCoc = "Nada";
-                    }
-                    $objDelaRespuesta->detalleCer= pedido::TraerMasVendidosSectorFechas("detalleCer","",$hasta);
-                    if ($objDelaRespuesta->detalleCer == false) {
-                        $objDelaRespuesta->detalleCer = "Nada";
-                    }
-                    return $response->withJson($objDelaRespuesta, 200); 
-    
-            }
-            if (!isset($ArrayDeParametros['desde']) && !isset($ArrayDeParametros['hasta'])) {
-                $objDelaRespuesta->detalleBar= pedido::TraerMasVendidosSectorFechas("detalleBar","","");
-                $objDelaRespuesta->detalleCoc= pedido::TraerMasVendidosSectorFechas("detalleCoc","","");
-                $objDelaRespuesta->detalleCer= pedido::TraerMasVendidosSectorFechas("detalleCer","","");
+                
+                $objDelaRespuesta->detalleBar= pedido::TraerMasVendidosSector("detalleBar");                
+                $objDelaRespuesta->detalleCoc= pedido::TraerMasVendidosSector("detalleCoc");          
+                $objDelaRespuesta->detalleCer= pedido::TraerMasVendidosSector("detalleCer");
+        
                 return $response->withJson($objDelaRespuesta, 200); 
-            }
+            
         }
 
         public function BorrarUno($request, $response, $args)
@@ -510,7 +477,7 @@ class pedidoApi
             $arrayConToken = $request->getHeader('token');
             $token=$arrayConToken[0];
             $datosToken = AutentificadorJWT::ObtenerData($token);
-    
+            
             if ($datosToken->estado =="suspendido") {
                  return $response->withJson('Esta suspendido, pongase en contacto con el administrador',404);
             }
@@ -541,35 +508,9 @@ class pedidoApi
             }
             $objDelaRespuesta= new stdclass();
     
-            if (isset($ArrayDeParametros['desde']) && isset($ArrayDeParametros['hasta'])) 
-            {
-                $desde= $ArrayDeParametros['desde'];
-                $hasta= $ArrayDeParametros['hasta'];
-    
-                $Mesas= pedido::TraerUsosMesasFechas($desde,$hasta);
+                $Mesas= pedido::TraerUsosMesas();
                 return $response->withJson($Mesas, 200); 
-                
-    
-            }
-            if (isset($ArrayDeParametros['desde']) && !isset($ArrayDeParametros['hasta'])) {
-                    $desde= $ArrayDeParametros['desde'];
-    
-                    $Mesas= pedido::TraerUsosMesasFechas($desde,"");
-                    return $response->withJson($Mesas, 200); 
-    
-            }
-            if (!isset($ArrayDeParametros['desde']) && isset($ArrayDeParametros['hasta'])) {
-                    $hasta= $ArrayDeParametros['hasta'];
-    
-    
-                    $Mesas= pedido::TraerUsosMesasFechas("",$hasta);
-                    return $response->withJson($Mesas, 200); 
-    
-            }
-            if (!isset($ArrayDeParametros['desde']) && !isset($ArrayDeParametros['hasta'])) {
-                $Mesas= pedido::TraerUsosMesasFechas("","");
-                return $response->withJson($Mesas, 200); 
-            }
+            
         }
 
         public function facturacionMesas($request, $response, $args)

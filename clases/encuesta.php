@@ -38,7 +38,7 @@ class encuesta
     public static function TraerTodasEncuestaPendiente() 
 	{
 			$objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso(); 
-			$consulta =$objetoAccesoDato->RetornarConsulta("SELECT  * FROM `encuestas` WHERE `estado_encuesta` = 'Finalizada'");
+			$consulta =$objetoAccesoDato->RetornarConsulta("SELECT  * FROM `encuestas`");
             $consulta->execute();
             if($consulta->rowCount() == 0){
                 return false;   

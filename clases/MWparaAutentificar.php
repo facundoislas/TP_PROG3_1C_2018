@@ -42,7 +42,7 @@ class MWparaAutentificar
 				if ($objDelaRespuesta->esValido){
 					$payload= AutentificadorJWT::ObtenerData($token);
 			
-					if (strtolower($payload->puesto)=="socio"){
+					if (strtolower($payload->tipo)=="socio"){
           				$response = $next($request, $response);
 					} 
 					else{
@@ -79,7 +79,7 @@ class MWparaAutentificar
 		if ($objDelaRespuesta->esValido){
 			$payload= AutentificadorJWT::ObtenerData($token);
 	
-			if (strtolower($payload->puesto)=="socio" || strtolower($payload->puesto)=="mozo"){
+			if (strtolower($payload->tipo)=="socio" || strtolower($payload->tipo)=="mozo"){
 				  $response = $next($request, $response);
 			} 
 			else{
