@@ -2,25 +2,24 @@
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 
+require_once 'vendor/autoload.php';
+require_once 'clases/AccesoDatos.php';
+require_once 'clases/empleadoApi.php';
+require_once 'clases/pedidoApi.php';
+require_once 'clases/listados.php';
+require_once 'clases/loginApi.php';
+require_once 'clases/mesaApi.php';
+require_once 'clases/MWparaCORS.php';
+require_once 'clases/MWparaAutentificar.php';
+require_once 'clases/excel.php';
+require_once 'clases/pdf.php';
+require_once 'clases/foto.php';
 
-require '/composer/vendor/autoload.php';
-require_once '/Clases/AccesoDatos.php';
-require_once '/Clases/empleadoApi.php';
-require_once '/Clases/pedidoApi.php';
-require_once '/Clases/mesaApi.php';
-require_once '/Clases/loginApi.php';
-//require_once '/Clases/AutentificadorJWT.php';
-require_once '/Clases/MWparaCORS.php';
-//require_once '/Clases/usuario.php';
-require_once '/Clases/MWparaAutentificar.php';
-
-//require_once '/clases/MWparaAutentificar.php';
 
 $config['displayErrorDetails'] = true;
 $config['addContentLengthHeader'] = false;
 
 /*
-
 ¡La primera línea es la más importante! A su vez en el modo de 
 desarrollo para obtener información sobre los errores
  (sin él, Slim por lo menos registrar los errores por lo que si está utilizando
@@ -32,81 +31,81 @@ desarrollo para obtener información sobre los errores
 */
 
 $app = new \Slim\App(["settings" => $config]);
+$app->add(function($request, $response, $next){
+  $response = $next($request, $response);
+
+  return $response
+              ->withHeader('Access-Control-Allow-Origin', '*')
+              ->withHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept, Origin, Authorization')
+              ->withHeader('Access-Control-Allow-Methods', 'GET, POST');
+});
 
 
-
-$app->get('[/]', function (Request $request, Response $response) {    
-  $response->getBody()->write("Bienvenido!!!");
+$app->get('/', function (Request $request, Response $response) {    
+  $response->getBody()->write("Bienvenido al sistema de Gestion de Comandas!!!");
   return $response;
 
 })->add(\MWparaCORS::class . ':HabilitarCORSTodos');
-//(POST email y clave)
+
 $app->post('/login', \loginApi::class . ':login')->add(\MWparaCORS::class . ':HabilitarCORSTodos');
-$app->post('/datosToken[/]', \loginApi::class . ':datosToken')->add(\MWparaAutentificar::class . ':VerificarUser')->add(\MWparaCORS::class . ':HabilitarCORSTodos');
-$app->post('/Encuesta[/]', \pedidoApi::class . ':encuesta')->add(\MWparaCORS::class . ':HabilitarCORSTodos');
-$app->post('/finalizarEncuesta[/]', \pedidoApi::class . ':finalizarEncuesta')->add(\MWparaCORS::class . ':HabilitarCORSTodos');
-$app->post('/todasEncuestas[/]', \pedidoApi::class . ':traerTodasEncuestas')->add(\MWparaCORS::class . ':HabilitarCORSTodos');
 
+$app->group('/empleado', function () {
 
-/*LLAMADA A METODOS DE INSTANCIA DE UNA CLASE*/
-$app->group('/personal', function () {
- 
-  $this->get('/', \empleadoApi::class . ':traerTodos');//->add(\MWparaCORS::class . ':HabilitarCORSTodos');
- 
-  $this->get('/{user}', \empleadoApi::class . ':traerUno');//->add(\MWparaCORS::class . ':HabilitarCORSTodos');
-
-  $this->post('/alta', \empleadoApi::class . ':CargarUno');
-
-  $this->delete('/', \empleadoApi::class . ':BorrarUno');//->add(\MWparaAutentificar::class . ':VerificarUsuario');
-
-  $this->put('/suspender', \empleadoApi::class . ':Suspender');//->add(\MWparaAutentificar::class . ':VerificarUsuario');
-
-  $this->put('/modificar', \empleadoApi::class . ':ModificarUno');//->add(\MWparaAutentificar::class . ':VerificarUsuario');
-
-  $this->put('/activar', \empleadoApi::class . ':Activar');//->add(\MWparaAutentificar::class . ':VerificarUsuario');
-
-  $this->get('/suspendidos/', \empleadoApi::class . ':TraerSuspendidos');//->add(\MWparaAutentificar::class . ':VerificarUsuario');
-
-  $this->get('/activos/', \empleadoApi::class . ':TraerActivos');//->add(\MWparaAutentificar::class . ':VerificarUsuario');
- 
      
-});//->add(\MWparaCORS::class . ':HabilitarCORS8080');
+     $this->post('/alta', \empleadoApi::class . ':CargarUno');
+     $this->get('/', \empleadoApi::class . ':traerTodos');
+     $this->get('/traerUno/{email}', \empleadoApi::class . ':traerUno');
+     $this->get('/suspendidos', \empleadoApi::class . ':traerTodosSuspendidos');
+     $this->delete('/borrar', \empleadoApi::class . ':BorrarUno');
+     $this->put('/modificar', \empleadoApi::class . ':modificarUno');
+     $this->put('/suspender', \empleadoApi::class . ':suspenderUno');
+     $this->put('/activar', \empleadoApi::class . ':activarUno');
 
+     //$this->post('/cantidadOperaciones/[{email}]', \empleadoApi::class . ':operacionesEmpleado');
 
+     $this->post('/historicoLogin/[{email}]', \empleadoApi::class . ':loginEmpleado');
 
-$app->group('/pedido', function () {
+ })->add(\MWparaAutentificar::class . ':VerificarAdmin')->add(\MWparaCORS::class . ':HabilitarCORSTodos');
 
-  $this->post('/alta[/]', \pedidoApi::class . ':crearPedido');
-  //$this->get('/', \pedidoApi::class . ':traerTodos');
+ $app->group('/pedido', function () {
+
+  $this->post('/alta', \pedidoApi::class . ':crearPedido')->add(\MWparaAutentificar::class . ':VerificarSocioMozo');
   $this->get('/', \pedidoApi::class . ':traerTodosConEstadoMesa');
-  $this->post('/traerUno[/]', \pedidoApi::class . ':traerUno');
-  $this->post('/cancelar[/]', \pedidoApi::class . ':BorrarUno');
-  $this->post('/modificar[/]', \pedidoApi::class . ':modificarUno');
-  $this->post('/finalizar[/]', \pedidoApi::class . ':finalizarPedido');
-  $this->post('/estadoGlobal[/]', \pedidoApi::class . ':cambiarEstadoPedido');
-  $this->post('/operacionesSector[/]', \pedidoApi::class . ':operacionesSector');
-  $this->post('/operacionesEmpleado[/]', \pedidoApi::class . ':operacionesEmpleado');
-  $this->post('/masVendidos[/]', \pedidoApi::class . ':masPedidos');
-  $this->post('/usoMesas[/]', \pedidoApi::class . ':usoMesas');
-  $this->post('/facturacionMesas[/]', \pedidoApi::class . ':facturacionMesas');
-  $this->post('/tiempoEstimado[/]', \pedidoApi::class . ':tiempoEstimado');
+  $this->get('/traerUno/{idPedido}', \pedidoApi::class . ':traerUno');
+  $this->post('/cancelar', \pedidoApi::class . ':BorrarUno');
+  $this->post('/modificar', \pedidoApi::class . ':modificarUno');
+  $this->post('/listo_servir', \pedidoApi::class . ':finalizarPedido');
+  $this->post('/finalizar', \pedidoApi::class . ':cambiarEstadoPedido')->add(\MWparaAutentificar::class . ':VerificarSocioMozo');
+  $this->get('/operacionesSector', \pedidoApi::class . ':operacionesSector');
+  $this->get('/operacionesEmpleado/{email}', \empleadoApi::class . ':operacionesEmpleado');
+  $this->post('/masVendidos', \pedidoApi::class . ':masPedidos');
+  $this->post('/tiempoEstimado', \pedidoApi::class . ':tiempoEstimado');
 
-  $this->get('/verImagen/[{email}]', \foto::class . ':verImagen');
-
-});
+})->add(\MWparaCORS::class . ':HabilitarCORSTodos');
 
 $app->group('/mesa', function () {
 
   $this->get('/', \mesaApi::class . ':traerTodos');
-  $this->get('/disponibles/', \mesaApi::class . ':traerTodosDisponibles');
+  $this->get('/disponibles', \mesaApi::class . ':traerTodosDisponibles');
+    $this->get('/usoMesas', \pedidoApi::class . ':usoMesas');
+  $this->post('/facturacionMesas', \pedidoApi::class . ':facturacionMesas');
 
 })->add(\MWparaCORS::class . ':HabilitarCORSTodos');
 
-  $app->group('/encuesta', function () {
-	
-	$this->get('/', \encuestaApi::class . ':TraerEncuestas');
 
-	$this->post('/llenar', \encuestaApi::class . ':CargarEncuesta');
-	   
-  });
+$app->group('/encuesta', function (){
+
+	$this->post('/', \pedidoApi::class . ':encuesta');
+	$this->post('/finalizarEncuesta', \pedidoApi::class . ':finalizarEncuesta');
+	$this->get('/todasEncuestas', \pedidoApi::class . ':traerTodasEncuestas');
+
+})->add(\MWparaCORS::class . ':HabilitarCORSTodos');
+
+$app->group('/listados', function () {
+
+  $this->get('/empleados/login', \listados::class . ':traerTodosLoginEmpleados');
+  $this->get('/exportExcel/[{id}]', \excel::class . ':loginUsurioExcel');
+
+})->add(\MWparaAutentificar::class . ':VerificarAdmin')->add(\MWparaCORS::class . ':HabilitarCORSTodos');
+
 $app->run();
