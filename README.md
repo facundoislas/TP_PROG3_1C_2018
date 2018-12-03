@@ -1,16 +1,11 @@
 # TP_PROG3_1C_2018
 "la comanda" TP obligatorio
 
-#Atención!!!
+pagina web:
+https://comanda-facuislas.000webhostapp.com/
 
-1- Hacer fork de este repo.
+collection del postman:
+https://www.getpostman.com/collections/7680c3c67efa4a00aa11
 
-2-Las consultas se realizan por las issues de este repositorio.
-
-3-El enunciado va a cambiar indefectiblemente.
-
-
-<h1>Alerta!!!</h1> 
-
-<h2>las consultas se realizan por las issues de este repositorio.</h2>
-
+base de datos:
+https://databases.000webhost.com/db_structure.php?server=1&db=id7994824_comandafacu&token=df384840e36aaeb8dd96e09e948ece76
