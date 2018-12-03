@@ -205,7 +205,7 @@ class pedido
     public static function TraerMasVendidosSector($tipo)
     {
         $objetoAccesoDatos = AccesoDatos::dameUnObjetoAcceso();
-            $consulta = $objetoAccesoDatos->RetornarConsulta("SELECT `$tipo`,COUNT(`$tipo`) cant FROM `pedidos` GROUP BY `$tipo` HAVING `$tipo` != 'nada' AND `$tipo` != 'Sin pedido' AND `$tipo` != 'Finalizado' ORDER BY cant DESC LIMIT 1");
+            $consulta = $objetoAccesoDatos->RetornarConsulta("SELECT `$tipo`,COUNT(`$tipo`) cant FROM `pedidos` GROUP BY `$tipo` HAVING `$tipo` != '' AND `$tipo` != 'Sin pedido' AND `$tipo` != 'Finalizado' ORDER BY cant DESC LIMIT 1");
             
             $consulta->bindValue(":tipo", $tipo, PDO::PARAM_STR);
         $consulta->setFetchMode(PDO::FETCH_ASSOC);

@@ -201,11 +201,11 @@ class pedidoApi
 
                
                 
-                if (isset($ArrayDeParametros['estadoBar'])&& isset($ArrayDeParametros['tiempo_estimado_bar'])) {
+                if (isset($ArrayDeParametros['estadoBar'])&& isset($ArrayDeParametros['tiempo_bar'])) {
 
                     if($pedModificar->detalleBar!=null){
                     $estadoBar = strtolower($ArrayDeParametros['estadoBar']);
-                    $tiempo_estimado_bar = $ArrayDeParametros['tiempo_estimado_bar'];
+                    $tiempo_estimado_bar = $ArrayDeParametros['tiempo_bar'];
 
                     $pedModificar->estadoBar = $estadoBar;
                     $pedModificar->tiempo_estimado_bar = $tiempo_estimado_bar;
@@ -214,7 +214,7 @@ class pedidoApi
                         return $response->withJson('Error: estadoBar no puede esta vacio',404);
                     }
                     if ($pedModificar->tiempo_estimado_bar== "" || !isset($pedModificar->tiempo_estimado_bar)) {
-                        return $response->withJson("Error: tiempo_estimado_bar no puede esta vacio",404);
+                        return $response->withJson("Error: tiempo_bar no puede esta vacio",404);
                     }
                     $pedModificar->modificarBarID($idPedido);
                     $objDelaRespuesta->estadoBar =$estadoBar;
@@ -227,10 +227,10 @@ class pedidoApi
             }
                 
                  
-                if (isset($ArrayDeParametros['estadoCer']) && isset($ArrayDeParametros['tiempo_estimado_cer'])) {
+                if (isset($ArrayDeParametros['estadoCer']) && isset($ArrayDeParametros['tiempo_cerveza'])) {
                     if($pedModificar->detalleCer!=null){
                     $estadoCer = strtolower($ArrayDeParametros['estadoCer']);
-                    $tiempo_estimado_cer = $ArrayDeParametros['tiempo_estimado_cer'];
+                    $tiempo_estimado_cer = $ArrayDeParametros['tiempo_cerveza'];
 
                     $pedModificar->estadoCer = $estadoCer;
                     $pedModificar->tiempo_estimado_cer = $tiempo_estimado_cer;
@@ -239,7 +239,7 @@ class pedidoApi
                         return $response->withJson("Error: estadoCer no puede esta vacio",404);
                     }
                     if ($pedModificar->tiempo_estimado_cer== "" || !isset($pedModificar->tiempo_estimado_cer)) {
-                        return $response->withJson("Error: tiempo_estimado_cer no puede esta vacio",404);
+                        return $response->withJson("Error: tiempo_cerveza no puede esta vacio",404);
                     }
                     $pedModificar->modificarCerID($idPedido);
                     $objDelaRespuesta->estadoCer =$estadoCer;
@@ -253,10 +253,10 @@ class pedidoApi
                 
                 
                 
-                if (isset($ArrayDeParametros['estadoCoc']) && isset($ArrayDeParametros['tiempo_estimado_coc'])) {
+                if (isset($ArrayDeParametros['estadoCoc']) && isset($ArrayDeParametros['tiempo_cocina'])) {
                     if($pedModificar->detalleCoc !=null){
                     $estadoCoc = strtolower($ArrayDeParametros['estadoCoc']);
-                    $tiempo_estimado_coc = $ArrayDeParametros['tiempo_estimado_coc'];
+                    $tiempo_estimado_coc = $ArrayDeParametros['tiempo_cocina'];
 
                     $pedModificar->estadoCoc = $estadoCoc;
                     $pedModificar->tiempo_estimado_coc = $tiempo_estimado_coc;
@@ -265,7 +265,7 @@ class pedidoApi
                         return $response->withJson('Error: estadoCoc no puede esta vacio',404);
                     }
                     if ($pedModificar->tiempo_estimado_coc== "" || !isset($pedModificar->tiempo_estimado_coc)) {
-                        return $response->withJson("Error: tiempo_estimado_coc no puede esta vacio",404);
+                        return $response->withJson("Error: tiempo_cocina no puede esta vacio",404);
                     }
                     $pedModificar->modificarCocID($idPedido);
                     $objDelaRespuesta->estadoCoc =$estadoCoc;
