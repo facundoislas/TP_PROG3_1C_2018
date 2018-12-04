@@ -56,10 +56,10 @@ $app->group('/empleado', function () {
      $this->get('/', \empleadoApi::class . ':traerTodos');
      $this->get('/traerUno/{email}', \empleadoApi::class . ':traerUno');
      $this->get('/suspendidos', \empleadoApi::class . ':traerTodosSuspendidos');
-     $this->delete('/borrar', \empleadoApi::class . ':BorrarUno');
-     $this->put('/modificar', \empleadoApi::class . ':modificarUno');
-     $this->put('/suspender', \empleadoApi::class . ':suspenderUno');
-     $this->put('/activar', \empleadoApi::class . ':activarUno');
+     $this->post('/borrar', \empleadoApi::class . ':BorrarUno');
+     $this->post('/modificar', \empleadoApi::class . ':modificarUno');
+     $this->post('/suspender', \empleadoApi::class . ':suspenderUno');
+     $this->post('/activar', \empleadoApi::class . ':activarUno');
 
      //$this->post('/cantidadOperaciones/[{email}]', \empleadoApi::class . ':operacionesEmpleado');
 
