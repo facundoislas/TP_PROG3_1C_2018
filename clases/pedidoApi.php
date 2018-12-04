@@ -420,6 +420,7 @@ class pedidoApi
             mesa::ocuparMesa($pedFinalizar->nroMesa,$estado);
             if ($estado == "finalizado") {
                 //cambiarTodosEstadoSector
+                mesa::ocuparMesa($pedFinalizar->nroMesa,"libre");
                 pedido::cambiarTodosEstadoSector($idPedido,"Finalizado");
                 encuesta::altaEncuesta($idPedido,$pedFinalizar->nroMesa,"Pendiente");
             }
